@@ -8,14 +8,13 @@ import os
 from PIL import Image
 
 # ============================================
-# Download models from Google Drive (once)
+# Download and load models from Google Drive
 # ============================================
 @st.cache_resource
 def load_models():
-    # Create models directory
     os.makedirs("models", exist_ok=True)
 
-    # Download each file from Google Drive if not already present
+    # Paste your actual file IDs here
     files = {
         "models/best_ef_model.keras": "1CM1bPY3dHb9sP-WuT2CIXS9c4o0HungL",
         "models/best_resnet_model.keras": "1Sn2BC-ST3NFjndlBmmyXjSw47ic6vzYb",
@@ -25,8 +24,8 @@ def load_models():
 
     for path, file_id in files.items():
         if not os.path.exists(path):
-            st.info(f"Downloading {path}...")
-            gdown.download(f"https://drive.google.com/uc?id={file_id}", path, quiet=False)
+            url = f"https://drive.google.com/uc?id={file_id}"
+            gdown.download(url, path, quiet=False, fuzzy=True)
 
     ef_model = tf.keras.models.load_model("models/best_ef_model.keras")
     resnet_model = tf.keras.models.load_model("models/best_resnet_model.keras")
@@ -36,20 +35,18 @@ def load_models():
     return ef_model, resnet_model, rf_model, scaler
 
 # ============================================
-# Prediction function
+# Prediction
 # ============================================
 CLASS_NAMES = ['Bad Quality_Fruits', 'Good Quality_Fruits', 'Mixed Quality_Fruits']
 IMG_SIZE = (224, 224)
 
 def predict(image_file, ef_model, resnet_model, rf_model, scaler):
-    # Preprocess
     image = Image.open(image_file).convert("RGB")
     image_resized = image.resize(IMG_SIZE)
     image_array = np.array(image_resized, dtype=np.float32)
     image_batch = np.expand_dims(image_array, axis=0)
     image_tensor = tf.constant(image_batch)
 
-    # Model predictions
     ef_proba = ef_model.predict(image_tensor, verbose=0)
     resnet_proba = resnet_model.predict(image_tensor, verbose=0)
 
@@ -69,32 +66,30 @@ def predict(image_file, ef_model, resnet_model, rf_model, scaler):
     return CLASS_NAMES[predicted_class], confidence, final_proba[0], image
 
 # ============================================
-# Streamlit UI
+# UI
 # ============================================
 st.set_page_config(page_title="Fruit Quality Detector", page_icon="🍎", layout="centered")
 st.title("🍎 Fruit Quality Detector")
-st.write("Upload a fruit image to detect whether it is Good, Bad, or Mixed quality.")
+st.write("Upload a fruit image to check whether it is Good, Bad, or Mixed quality.")
 
 uploaded_file = st.file_uploader("Choose a fruit image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    with st.spinner("Loading models (first run may take a minute)..."):
+    with st.spinner("Loading models — first run takes a minute..."):
         ef_model, resnet_model, rf_model, scaler = load_models()
 
-    with st.spinner("Analyzing image..."):
-        label, confidence, all_probs, image = predict(uploaded_file, ef_model, resnet_model, rf_model, scaler)
+    with st.spinner("Analyzing..."):
+        label, confidence, all_probs, image = predict(
+            uploaded_file, ef_model, resnet_model, rf_model, scaler
+        )
 
     col1, col2 = st.columns(2)
-
     with col1:
-        st.image(image, caption="Uploaded Image", use_column_width=True)
-
+        st.image(image, caption="Uploaded Image", width=300)
     with col2:
-        # Color based on result
         color = {"Bad Quality_Fruits": "🔴", "Good Quality_Fruits": "🟢", "Mixed Quality_Fruits": "🟡"}
         st.markdown(f"### {color[label]} {label.replace('_', ' ')}")
         st.metric("Confidence", f"{confidence:.2%}")
-
         st.write("**All class probabilities:**")
         for i, name in enumerate(CLASS_NAMES):
             st.progress(float(all_probs[i]), text=f"{name.replace('_', ' ')}: {all_probs[i]:.2%}")
