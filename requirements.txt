@@ -1,7 +1,7 @@
-streamlit==1.45.1
-tensorflow-cpu==2.16.2
+streamlit
+tensorflow-cpu
 scikit-learn==1.6.1
-joblib==1.4.2
-gdown==5.2.0
-numpy==1.26.4
-pillow==10.4.0
+joblib
+gdown
+numpy<2.0
+pillow
