@@ -24,8 +24,14 @@ def load_models():
 
     for path, file_id in files.items():
         if not os.path.exists(path):
-            url = f"https://drive.google.com/uc?id={file_id}"
-            gdown.download(url, path, quiet=False, fuzzy=True)
+            try:
+                gdown.download(id=file_id, output=path, quiet=False)
+            except Exception as e:
+                st.error(f"Failed to download {path}: {e}")
+                st.stop()
+            if not os.path.exists(path) or os.path.getsize(path) == 0:
+                st.error(f"Download failed or empty file: {path}")
+                st.stop()
 
     ef_model = tf.keras.models.load_model("models/best_ef_model.keras")
     resnet_model = tf.keras.models.load_model("models/best_resnet_model.keras")
