@@ -16,10 +16,10 @@ def load_models():
 
     # Paste your actual file IDs here
     files = {
-        "models/best_ef_model.keras": "1CM1bPY3dHb9sP-WuT2CIXS9c4o0HungL",
-        "models/best_resnet_model.keras": "1Sn2BC-ST3NFjndlBmmyXjSw47ic6vzYb",
-        "models/rf_model.joblib": "166uHbJdgv-C41dNYctE1WfbZBXTrffdU",
-        "models/feature_scaler.joblib": "12RrfEo1Dwmxy0Fz7D2oV4lw_hLhLs12r",
+    "models/best_ef_model.keras": st.secrets["EF_MODEL_ID"],
+    "models/best_resnet_model.keras": st.secrets["RESNET_MODEL_ID"],
+    "models/rf_model.joblib": st.secrets["RF_MODEL_ID"],
+    "models/feature_scaler.joblib": st.secrets["SCALER_ID"],
     }
 
     for path, file_id in files.items():
