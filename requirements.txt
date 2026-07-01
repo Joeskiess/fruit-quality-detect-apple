@@ -1,7 +1,7 @@
 streamlit
-tensorflow-cpu
+tensorflow
 scikit-learn==1.6.1
 joblib
-gdown
-numpy<2.0
+gdown>=5.1.0
+numpy
 pillow
