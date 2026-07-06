@@ -1,4 +1,4 @@
-# fruit-quality-detect-apple
+# fruit-quality-detect-apples
 The Innovations are limitless, the horizons are endless
 
 
